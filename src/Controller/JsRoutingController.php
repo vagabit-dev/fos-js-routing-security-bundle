@@ -23,12 +23,20 @@ class JsRoutingController
      * @param string $cachePrefix prefix prepended to role-hashed cache keys
      * @param string|null $cacheTag cache tag applied to cache items for selective invalidation (null to disable tagging)
      * @param TokenStorageInterface|null $tokenStorage optional token storage for retrieving user roles
+     * @param array{private?: bool, no_store?: bool, max_age?: int, must_revalidate?: bool, etag?: bool} $httpCache HTTP cache settings for responses
      */
     public function __construct(
         private readonly ?int $cacheTtl = 3600,
         private readonly string $cachePrefix = 'js_routes_',
         private readonly ?string $cacheTag = 'fos_js_routing_security',
-        private readonly ?TokenStorageInterface $tokenStorage = null
+        private readonly ?TokenStorageInterface $tokenStorage = null,
+        private readonly array $httpCache = [
+            'private' => true,
+            'no_store' => true,
+            'max_age' => 0,
+            'must_revalidate' => false,
+            'etag' => false,
+        ]
     ) {
     }
 
@@ -94,10 +102,31 @@ class JsRoutingController
             ];
         });
 
-        // 3. Return JSON with browser security headers
+        // 3. Return JSON with browser security and HTTP cache headers
         $response = new JsonResponse($routesData);
-        $response->setPrivate();
-        $response->headers->addCacheControlDirective('no-store', true);
+
+        if (!empty($this->httpCache['private'])) {
+            $response->setPrivate();
+        } else {
+            $response->setPublic();
+        }
+
+        if (!empty($this->httpCache['no_store'])) {
+            $response->headers->addCacheControlDirective('no-store', true);
+        } else {
+            $response->headers->removeCacheControlDirective('no-store');
+            if (isset($this->httpCache['max_age'])) {
+                $response->setMaxAge($this->httpCache['max_age']);
+            }
+            if (!empty($this->httpCache['must_revalidate'])) {
+                $response->headers->addCacheControlDirective('must-revalidate', true);
+            }
+        }
+
+        if (!empty($this->httpCache['etag'])) {
+            $response->setEtag(md5((string) $response->getContent()));
+            $response->isNotModified($request);
+        }
 
         return $response;
     }

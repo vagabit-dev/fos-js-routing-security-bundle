@@ -24,11 +24,19 @@ class FOSJsRoutingSecurityExtension extends Extension
         $cachePrefix = $config['cache_prefix'] ?? 'js_routes_';
         $cacheTag = $config['cache_tag'] ?? 'fos_js_routing_security';
         $warmupRoles = $config['warmup_roles'] ?? [['ROLE_ANONYMOUS']];
+        $httpCache = $config['http_cache'] ?? [
+            'private' => true,
+            'no_store' => true,
+            'max_age' => 0,
+            'must_revalidate' => false,
+            'etag' => false,
+        ];
 
         $container->setParameter('fos_js_routing_security.cache_ttl', $cacheTtl);
         $container->setParameter('fos_js_routing_security.cache_prefix', $cachePrefix);
         $container->setParameter('fos_js_routing_security.cache_tag', $cacheTag);
         $container->setParameter('fos_js_routing_security.warmup_roles', $warmupRoles);
+        $container->setParameter('fos_js_routing_security.http_cache', $httpCache);
 
         // Alias ExposedRoutesExtractorInterface to fos_js_routing.extractor
         $container->setAlias(ExposedRoutesExtractorInterface::class, 'fos_js_routing.extractor')
@@ -73,6 +81,7 @@ class FOSJsRoutingSecurityExtension extends Extension
                 '%fos_js_routing_security.cache_prefix%',
                 '%fos_js_routing_security.cache_tag%',
                 new Reference('security.token_storage', ContainerBuilder::NULL_ON_INVALID_REFERENCE),
+                '%fos_js_routing_security.http_cache%',
             ])
             ->addTag('controller.service_arguments')
             ->setPublic(true);

@@ -21,6 +21,13 @@ class FOSJsRoutingSecurityExtensionTest extends TestCase
         $this->assertSame('js_routes_', $container->getParameter('fos_js_routing_security.cache_prefix'));
         $this->assertSame('fos_js_routing_security', $container->getParameter('fos_js_routing_security.cache_tag'));
         $this->assertSame([['ROLE_ANONYMOUS']], $container->getParameter('fos_js_routing_security.warmup_roles'));
+        $this->assertSame([
+            'private' => true,
+            'no_store' => true,
+            'max_age' => 0,
+            'must_revalidate' => false,
+            'etag' => false,
+        ], $container->getParameter('fos_js_routing_security.http_cache'));
     }
 
     public function testCustomConfiguration(): void
@@ -38,6 +45,13 @@ class FOSJsRoutingSecurityExtensionTest extends TestCase
                     'ROLE_USER',
                     ['ROLE_ADMIN', 'ROLE_USER'],
                 ],
+                'http_cache' => [
+                    'private' => true,
+                    'no_store' => false,
+                    'max_age' => 300,
+                    'must_revalidate' => true,
+                    'etag' => true,
+                ],
             ],
         ];
 
@@ -51,6 +65,13 @@ class FOSJsRoutingSecurityExtensionTest extends TestCase
             ['ROLE_USER'],
             ['ROLE_ADMIN', 'ROLE_USER'],
         ], $container->getParameter('fos_js_routing_security.warmup_roles'));
+        $this->assertSame([
+            'private' => true,
+            'no_store' => false,
+            'max_age' => 300,
+            'must_revalidate' => true,
+            'etag' => true,
+        ], $container->getParameter('fos_js_routing_security.http_cache'));
     }
 
     public function testNeverExpireConfigurationWithString(): void

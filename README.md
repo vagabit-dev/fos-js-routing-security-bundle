@@ -30,7 +30,7 @@ This extension optimizes the system by aligning route delivery with actual user 
 - **Centralized Security Access Control**: Intercepts route extraction and matches route paths against `security.yaml` `access_control` rules via `Symfony\Component\Security\Http\AccessMapInterface`.
 - **Single & Multiple Role Route Options**: Supports declaring single (`role`) or multiple (`roles`) required roles directly on the route definition (e.g. `options: ['expose' => true, 'role' => 'ROLE_MANAGER']` or `options: ['expose' => true, 'roles' => ['ROLE_ADMIN', 'ROLE_MANAGER']]`).
 - **Role-Based Server-Side Caching**: Controller endpoint (`/js-routes.json`) caches route definitions keyed by the user's role combination (`js_routes_<hash>`), isolating cache entries per role configuration without repetitive path matching on every request.
-- **Cache-Control Security Headers**: Returns `private, no-store` response headers to ensure dynamic routes are never stored in public/shared browser caches.
+- **Configurable HTTP Cache & Security Headers**: Secure by default with `private, no-store` headers, with configurable browser caching (`max_age`), revalidation (`must_revalidate`), public/private visibility, and conditional ETag handling (`304 Not Modified`).
 
 ---
 
@@ -119,17 +119,17 @@ Can be used in almost all ways indicated in [FOSJsRouting usage page](https://gi
 >    * routes can not be used with Webpack plugin (`FosRouting`)
 
 
-### 5. Configure Cache Lifetime, Prefix & Tag (Optional)
+### 5. Configure Cache Lifetime, Prefix, Tag & HTTP Cache (Optional)
 
 Generating js routes json on each request can be a heavy task especially for a complex application,
-for this reason the bundle provides a specifica cache system.
+for this reason the bundle provides a specific cache system.
 
-You can configure cache behavior in your Symfony configuration (`config/packages/fos_js_routing_security.yaml`):
+You can configure server-side and HTTP response caching behavior in your Symfony configuration (`config/packages/fos_js_routing_security.yaml`):
 
 ```yaml
 # config/packages/fos_js_routing_security.yaml
 fos_js_routing_security:
-    # Cache TTL in seconds (integer or null).
+    # Server-side Cache TTL in seconds (integer or null).
     # - Positive integer (> 0): Cache expires after N seconds (e.g. 3600 for 1 hour).
     # - null (or ~ or "never"): Indefinite cache lifetime (entries never expire automatically).
     # - 0: Immediate expiration (disables caching / fresh extraction on every request).
@@ -147,7 +147,35 @@ fos_js_routing_security:
         - ROLE_ANONYMOUS
         - ROLE_USER
         - [ROLE_ADMIN, ROLE_USER]
+
+    # HTTP Client / Browser Cache-Control settings for /js-routes.json
+    http_cache:
+        # Mark response as private (recommended for user-specific routes, default: true)
+        private: true
+        
+        # Disallow storage completely with no-store (default: true)
+        no_store: true
+        
+        # Max-age in seconds for browser caching when no_store is false (default: 0)
+        max_age: 0
+        
+        # Require cache revalidation before using cached entry (default: false)
+        must_revalidate: false
+        
+        # Enable ETag header generation and 304 Not Modified conditional responses (default: false)
+        etag: false
 ```
+
+#### HTTP Cache Configurations
+
+Depending on your application's architecture and performance requirements, you can adjust `http_cache`:
+
+* **Maximum Security & Session Isolation (Default)**:
+  `private: true, no_store: true` prevents storing routes in browser or intermediate caches, ensuring role changes or logouts take effect instantly.
+* **Short-Lived Browser Cache**:
+  `private: true, no_store: false, max_age: 300` caches route definitions privately in the user's browser for 5 minutes, eliminating repeat network requests during active navigation.
+* **Conditional Validation via ETag (`304 Not Modified`)**:
+  `private: true, no_store: false, etag: true, must_revalidate: true` allows the browser to revalidate via `If-None-Match`. On match, the server returns an empty `304 Not Modified` payload without transferring route data.
 
 #### Cache Warmer
 
