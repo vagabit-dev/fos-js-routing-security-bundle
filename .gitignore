@@ -1,0 +1,10 @@
+/vendor/
+/var/
+.phpunit.result.cache
+.php-cs-fixer.cache
+
+### IDE & Editor Files ###
+.idea/
+*.iml
+.vscode/
+.DS_Store

@@ -1,0 +1,135 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\DependencyInjection;
+
+use App\DependencyInjection\FOSJsRoutingSecurityExtension;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+
+class FOSJsRoutingSecurityExtensionTest extends TestCase
+{
+    public function testDefaultConfiguration(): void
+    {
+        $container = new ContainerBuilder();
+        $extension = new FOSJsRoutingSecurityExtension();
+
+        $extension->load([], $container);
+
+        $this->assertSame(3600, $container->getParameter('fos_js_routing_security.cache_ttl'));
+        $this->assertSame('js_routes_', $container->getParameter('fos_js_routing_security.cache_prefix'));
+        $this->assertSame('fos_js_routing_security', $container->getParameter('fos_js_routing_security.cache_tag'));
+        $this->assertSame([['ROLE_ANONYMOUS']], $container->getParameter('fos_js_routing_security.warmup_roles'));
+    }
+
+    public function testCustomConfiguration(): void
+    {
+        $container = new ContainerBuilder();
+        $extension = new FOSJsRoutingSecurityExtension();
+
+        $config = [
+            'fos_js_routing_security' => [
+                'cache_ttl' => 7200,
+                'cache_prefix' => 'custom_routes_',
+                'cache_tag' => 'my_routes_tag',
+                'warmup_roles' => [
+                    'ROLE_ANONYMOUS',
+                    'ROLE_USER',
+                    ['ROLE_ADMIN', 'ROLE_USER'],
+                ],
+            ],
+        ];
+
+        $extension->load($config, $container);
+
+        $this->assertSame(7200, $container->getParameter('fos_js_routing_security.cache_ttl'));
+        $this->assertSame('custom_routes_', $container->getParameter('fos_js_routing_security.cache_prefix'));
+        $this->assertSame('my_routes_tag', $container->getParameter('fos_js_routing_security.cache_tag'));
+        $this->assertSame([
+            ['ROLE_ANONYMOUS'],
+            ['ROLE_USER'],
+            ['ROLE_ADMIN', 'ROLE_USER'],
+        ], $container->getParameter('fos_js_routing_security.warmup_roles'));
+    }
+
+    public function testNeverExpireConfigurationWithString(): void
+    {
+        $container = new ContainerBuilder();
+        $extension = new FOSJsRoutingSecurityExtension();
+
+        $config = [
+            'fos_js_routing_security' => [
+                'cache_ttl' => 'never',
+            ],
+        ];
+
+        $extension->load($config, $container);
+
+        $this->assertNull($container->getParameter('fos_js_routing_security.cache_ttl'));
+    }
+
+    public function testZeroTtlConfiguration(): void
+    {
+        $container = new ContainerBuilder();
+        $extension = new FOSJsRoutingSecurityExtension();
+
+        $config = [
+            'fos_js_routing_security' => [
+                'cache_ttl' => 0,
+            ],
+        ];
+
+        $extension->load($config, $container);
+
+        $this->assertSame(0, $container->getParameter('fos_js_routing_security.cache_ttl'));
+    }
+
+    public function testNeverExpireConfigurationWithNull(): void
+    {
+        $container = new ContainerBuilder();
+        $extension = new FOSJsRoutingSecurityExtension();
+
+        $config = [
+            'fos_js_routing_security' => [
+                'cache_ttl' => null,
+            ],
+        ];
+
+        $extension->load($config, $container);
+
+        $this->assertNull($container->getParameter('fos_js_routing_security.cache_ttl'));
+    }
+
+    public function testServiceDefinitionsAndDecorationAreRegistered(): void
+    {
+        $container = new ContainerBuilder();
+        $extension = new FOSJsRoutingSecurityExtension();
+
+        $extension->load([], $container);
+
+        // Verify ExposedRoutesExtractorInterface alias
+        $this->assertTrue($container->hasAlias(\FOS\JsRoutingBundle\Extractor\ExposedRoutesExtractorInterface::class));
+        $this->assertSame('fos_js_routing.extractor', (string) $container->getAlias(\FOS\JsRoutingBundle\Extractor\ExposedRoutesExtractorInterface::class));
+
+        // Verify RoleFilteredJsRoutesExtractor decoration
+        $this->assertTrue($container->hasDefinition(\App\Service\RoleFilteredJsRoutesExtractor::class));
+        $decoratorDef = $container->getDefinition(\App\Service\RoleFilteredJsRoutesExtractor::class);
+        $this->assertSame(['fos_js_routing.extractor', null, 0], $decoratorDef->getDecoratedService());
+
+        // Verify JsRoutesCacheWarmer registration and tag
+        $this->assertTrue($container->hasDefinition(\App\Service\JsRoutesCacheWarmer::class));
+        $warmerDef = $container->getDefinition(\App\Service\JsRoutesCacheWarmer::class);
+        $this->assertTrue($warmerDef->hasTag('kernel.cache_warmer'));
+
+        // Verify WarmupJsRoutesCacheCommand registration and tag
+        $this->assertTrue($container->hasDefinition(\App\Command\WarmupJsRoutesCacheCommand::class));
+        $commandDef = $container->getDefinition(\App\Command\WarmupJsRoutesCacheCommand::class);
+        $this->assertTrue($commandDef->hasTag('console.command'));
+
+        // Verify JsRoutingController registration and tag
+        $this->assertTrue($container->hasDefinition(\App\Controller\JsRoutingController::class));
+        $controllerDef = $container->getDefinition(\App\Controller\JsRoutingController::class);
+        $this->assertTrue($controllerDef->hasTag('controller.service_arguments'));
+    }
+}

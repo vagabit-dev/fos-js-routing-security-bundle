@@ -1,0 +1,9 @@
+framework:
+    secret: 'test-secret-key-1234567890'
+    test: true
+    session:
+        storage_factory_id: 'session.storage.factory.mock_file'
+    cache:
+        app: 'cache.adapter.array'
+    router:
+        utf8: true

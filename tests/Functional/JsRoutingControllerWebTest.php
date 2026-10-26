@@ -1,0 +1,88 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Functional;
+
+use App\Kernel;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+
+class JsRoutingControllerWebTest extends WebTestCase
+{
+    protected static function getKernelClass(): string
+    {
+        return Kernel::class;
+    }
+
+    public function testGetRoutesEndpointAnonymous(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/js-routes.json');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertTrue($client->getResponse()->headers->hasCacheControlDirective('private'));
+        $this->assertTrue($client->getResponse()->headers->hasCacheControlDirective('no-store'));
+
+        $content = json_decode((string) $client->getResponse()->getContent(), true);
+        $this->assertIsArray($content);
+        $this->assertArrayHasKey('routes', $content);
+
+        $routes = $content['routes'];
+        $this->assertArrayHasKey('public_home', $routes);
+        $this->assertArrayNotHasKey('admin_dashboard', $routes);
+        $this->assertArrayNotHasKey('account_profile', $routes);
+        $this->assertArrayNotHasKey('manager_reports', $routes);
+    }
+
+    public function testGetRoutesEndpointAdmin(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/js-routes.json', [], [], [
+            'PHP_AUTH_USER' => 'admin',
+            'PHP_AUTH_PW' => 'password',
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $content = json_decode((string) $client->getResponse()->getContent(), true);
+
+        $routes = $content['routes'];
+        $this->assertArrayHasKey('public_home', $routes);
+        $this->assertArrayHasKey('admin_dashboard', $routes);
+        $this->assertArrayNotHasKey('manager_reports', $routes);
+    }
+
+    public function testGetRoutesEndpointManager(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/js-routes.json', [], [], [
+            'PHP_AUTH_USER' => 'manager',
+            'PHP_AUTH_PW' => 'password',
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $content = json_decode((string) $client->getResponse()->getContent(), true);
+
+        $routes = $content['routes'];
+        $this->assertArrayHasKey('public_home', $routes);
+        $this->assertArrayHasKey('manager_reports', $routes);
+        $this->assertArrayNotHasKey('admin_dashboard', $routes);
+    }
+
+    public function testGetRoutesEndpointUser(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/js-routes.json', [], [], [
+            'PHP_AUTH_USER' => 'user',
+            'PHP_AUTH_PW' => 'password',
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $content = json_decode((string) $client->getResponse()->getContent(), true);
+
+        $routes = $content['routes'];
+        $this->assertArrayHasKey('public_home', $routes);
+        $this->assertArrayHasKey('account_profile', $routes);
+        $this->assertArrayNotHasKey('admin_dashboard', $routes);
+        $this->assertArrayNotHasKey('manager_reports', $routes);
+    }
+}
