@@ -7,6 +7,23 @@ Extends [FOSJsRoutingBundle](https://github.com/FriendsOfSymfony/FOSJsRoutingBun
 
 Current version: **`1.0.0-alpha1`**
 
+
+The fundamental purpose of FOSJsRoutingBundle is to maximize developer productivity by 
+eliminating manual URL hardcoding in JavaScript. 
+It brings Symfony’s route generation mechanism (`Routing.generate('route_name', { id: 1 })`) 
+directly to frontend applications.
+
+Standard FOSJsRouting operates on a public, all-or-nothing model. Any route marked `expose: 
+true` is exposed to every visitor. This presents a clear security and efficiency drawback: 
+internal and administrative endpoints (path structures, parameter schemas, and route names) are leaked 
+to unauthenticated users who cannot use them, increasing the attack surface without providing 
+any functional benefit.
+
+This extension optimizes the system by aligning route delivery with actual user utility and access permissions:
+1. Automated Route Filtering: for every exposed route, it evaluates Symfony’s security.yaml access_control rules and custom route-level role / roles options against the current user's security token.
+2. Information Minimization: Users only receive route definitions for endpoints they are actually authorized to access. Anonymous users receive only public routes; administrative routes are only transmitted to users holding ROLE_ADMIN.
+3. Security and Payload Reduction: Removing inaccessible routes shrinks payload size across the wire and prevents reconnaissance on sensitive backend structures.
+
 ## Features
 
 - **Zero-Configuration Activation**: Automatically registers and decorates `fos_js_routing.extractor` as soon as the bundle is enabled in `bundles.php`—no manual service wiring in `services.yaml` needed.
@@ -22,7 +39,7 @@ Current version: **`1.0.0-alpha1`**
 ### 1. Install via Composer
 
 ```bash
-composer require vagabit/fos-js-routing-security-bundle:^0.1.0-alpha1
+composer require vagabit/fos-js-routing-security-bundle:^1.0.0-alpha1
 ```
 
 ### 2. Enable the Bundle
@@ -38,9 +55,12 @@ return [
 ];
 ```
 
-> **Note:** The bundle automatically registers and activates `RoleFilteredJsRoutesExtractor` as a decorator of `fos_js_routing.extractor`, along with the cache warmer and `/js-routes.json` controller endpoint. No manual service configuration in `config/services.yaml` is required.
+### 3. Configure 
 
-### 3. Configure `security.yaml`
+#### security.yaml
+
+If you haven't already done so configure routes role access in `security.yaml`,
+the bundle will use it to know which routes to serve by user role.
 
 ```yaml
 # config/packages/security.yaml
@@ -50,7 +70,9 @@ security:
         - { path: ^/account, roles: ROLE_USER }
 ```
 
-### 4. Exposing Routes with Options
+#### Exposing Routes with Options
+
+Alternatively (or additionally) routes can be mae available to roles with the custom `role` option.
 
 #### Via `security.yaml` Matching
 ```php
@@ -88,7 +110,19 @@ public function staffReports(): Response
 }
 ```
 
+### 4. Usage
+
+Can be used in almost all ways indicated in [FOSJsRouting usage page](https://github.com/FriendsOfSymfony/FOSJsRoutingBundle/blob/master/Resources/doc/usage.rst) (see note below!).
+
+> **Note:** Given the dynamic way of serving the js routes by role:
+>    * routes can not be dumped with `fos:js-routing:dump` command
+>    * routes can not be used with Webpack plugin (`FosRouting`)
+
+
 ### 5. Configure Cache Lifetime, Prefix & Tag (Optional)
+
+Generating js routes json on each request can be a heavy task especially for a complex application,
+for this reason the bundle provides a specifica cache system.
 
 You can configure cache behavior in your Symfony configuration (`config/packages/fos_js_routing_security.yaml`):
 
@@ -114,14 +148,6 @@ fos_js_routing_security:
         - ROLE_USER
         - [ROLE_ADMIN, ROLE_USER]
 ```
-
-#### Cache TTL Semantics (`cache_ttl: ?int`)
-
-| Value | Behavior | Description |
-| :--- | :--- | :--- |
-| `> 0` (e.g. `3600`) | **Time-to-Live (TTL)** | Routes for each role set are cached and expire after $N$ seconds. |
-| `null` / `~` / `"never"` | **Never Expire** | Indefinite retention. Routes remain cached until explicitly invalidated or flushed. Ideal for production with tag invalidation. |
-| `0` | **Immediate Expiry / No-Cache** | Forces route extraction on every request without retaining cache items. |
 
 #### Cache Warmer
 
@@ -162,28 +188,12 @@ $cache->invalidateTags(['fos_js_routing_security']);
 php bin/console cache:pool:invalidate-tags fos_js_routing_security
 ```
 
-### 5. Fetch Routes in Frontend JavaScript
-
-```javascript
-import Routing from 'router'; // FOSJsRouting client library
-
-fetch('/js-routes.json')
-  .then(response => response.json())
-  .then(data => {
-    Routing.setData(data);
-    
-    // Only available if the authenticated user has the required role
-    console.log(Routing.generate('admin_dashboard'));
-  });
-```
 
 ---
 
 ## Running Tests
 
-### Using Docker (Recommended)
-
-Run the test suite using Docker Compose without needing a local PHP 8.1+ environment:
+Run the test suite using Docker Compose without needing a local PHP environment:
 
 ```bash
 # Run tests
@@ -193,7 +203,7 @@ docker compose run --rm test
 docker compose up --build
 ```
 
-You can also run directly with Docker:
+Or directly with standalone Docker:
 
 ```bash
 # Build the test image
@@ -203,32 +213,40 @@ docker build -t fos-js-routing-security-bundle-test .
 docker run --rm -v "$(pwd):/app" -w /app fos-js-routing-security-bundle-test vendor/bin/phpunit
 ```
 
-### Running Locally
-
-```bash
-composer install
-./vendor/bin/phpunit
-```
-
 ---
 
 ## Code Quality & Style
 
 This project follows Symfony coding standards via `.editorconfig` and `PHP CS Fixer`.
 
+### Using Docker Compose
+
 ```bash
 # Check code style
-vendor/bin/php-cs-fixer fix --dry-run --diff
+docker compose run --rm --entrypoint composer test cs-check
 
 # Automatically fix code style
-vendor/bin/php-cs-fixer fix
+docker compose run --rm --entrypoint composer test cs-fix
 ```
 
-Or via Composer scripts:
+Or directly via PHP CS Fixer binary:
 
 ```bash
-composer cs-check
-composer cs-fix
+# Check code style with diff
+docker compose run --rm --entrypoint vendor/bin/php-cs-fixer test fix --dry-run --diff
+
+# Automatically fix code style
+docker compose run --rm --entrypoint vendor/bin/php-cs-fixer test fix
+```
+
+### Using Standalone Docker
+
+```bash
+# Check code style
+docker run --rm -v "$(pwd):/app" -w /app fos-js-routing-security-bundle-test vendor/bin/php-cs-fixer fix --dry-run --diff
+
+# Automatically fix code style
+docker run --rm -v "$(pwd):/app" -w /app fos-js-routing-security-bundle-test vendor/bin/php-cs-fixer fix
 ```
 
 ---
