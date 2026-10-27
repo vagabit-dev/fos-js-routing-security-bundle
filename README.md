@@ -112,11 +112,72 @@ public function staffReports(): Response
 
 ### 4. Usage
 
-Can be used in almost all ways indicated in [FOSJsRouting usage page](https://github.com/FriendsOfSymfony/FOSJsRoutingBundle/blob/master/Resources/doc/usage.rst) (see note below!).
+To maximize developer productivity and application responsiveness, client-side route generation should integrate cleanly with your frontend architecture while preserving role-based endpoint isolation.
 
 > **Note:** Given the dynamic way of serving the js routes by role:
 >    * routes can not be dumped with `fos:js-routing:dump` command
 >    * routes can not be used with Webpack plugin (`FosRouting`)
+
+#### Option A: Modern Frontend Bundlers (Vite, Webpack, AssetMapper, npm/yarn)
+
+Install the client-side routing library:
+
+```bash
+npm install fos-routing --save
+# or
+yarn add fos-routing
+```
+
+Fetch the dynamic `/js-routes.json` endpoint upon application bootstrap to initialize the router with user-specific routes:
+
+```javascript
+import Routing from 'fos-routing';
+
+async function initRouting() {
+    const response = await fetch('/js-routes.json', {
+        headers: { 'Accept': 'application/json' }
+    });
+    const routesData = await response.json();
+    Routing.setRoutingData(routesData);
+}
+
+// Generate routes seamlessly
+initRouting().then(() => {
+    const url = Routing.generate('admin_dashboard');
+    console.log(url);
+});
+```
+
+#### Option B: Server-Rendered Twig Layouts
+
+For traditional multi-page applications, publish bundle assets and include the router library and dynamic route definition script in your base template (`templates/base.html.twig`):
+
+```bash
+php bin/console assets:install --symlink
+```
+
+```html
+<!-- 1. Load Router Library -->
+<script src="{{ asset('bundles/fosjsrouting/js/router.min.js') }}"></script>
+
+<!-- 2. Load and register dynamic role-filtered routes -->
+<script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
+```
+
+#### Route Generation Examples
+
+Once initialized, use `Routing.generate()` across frontend modules:
+
+```javascript
+// 1. Basic route generation
+const homeUrl = Routing.generate('public_home');
+
+// 2. Route generation with parameters
+const userUrl = Routing.generate('account_profile', { id: 42 });
+
+// 3. Absolute URL generation (pass true as the third argument)
+const absoluteUrl = Routing.generate('public_home', {}, true);
+```
 
 
 ### 5. Configure Cache Lifetime, Prefix, Tag & HTTP Cache (Optional)
