@@ -17,7 +17,7 @@ class JsRoutingControllerWebTest extends WebTestCase
     public function testGetRoutesEndpointAnonymous(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/js-routes.json');
+        $client->request('GET', '/vagabit-secure-js-routes.json');
 
         $this->assertResponseIsSuccessful();
         $this->assertTrue($client->getResponse()->headers->hasCacheControlDirective('private'));
@@ -37,7 +37,7 @@ class JsRoutingControllerWebTest extends WebTestCase
     public function testGetRoutesEndpointAdmin(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/js-routes.json', [], [], [
+        $client->request('GET', '/vagabit-secure-js-routes.json', [], [], [
             'PHP_AUTH_USER' => 'admin',
             'PHP_AUTH_PW' => 'password',
         ]);
@@ -54,7 +54,7 @@ class JsRoutingControllerWebTest extends WebTestCase
     public function testGetRoutesEndpointManager(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/js-routes.json', [], [], [
+        $client->request('GET', '/vagabit-secure-js-routes.json', [], [], [
             'PHP_AUTH_USER' => 'manager',
             'PHP_AUTH_PW' => 'password',
         ]);
@@ -71,7 +71,7 @@ class JsRoutingControllerWebTest extends WebTestCase
     public function testGetRoutesEndpointUser(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/js-routes.json', [], [], [
+        $client->request('GET', '/vagabit-secure-js-routes.json', [], [], [
             'PHP_AUTH_USER' => 'user',
             'PHP_AUTH_PW' => 'password',
         ]);

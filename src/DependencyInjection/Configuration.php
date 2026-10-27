@@ -66,7 +66,7 @@ class Configuration implements ConfigurationInterface
                 ->end()
                 ->arrayNode('http_cache')
                     ->addDefaultsIfNotSet()
-                    ->info('HTTP Client / Browser Cache-Control settings for /js-routes.json.')
+                    ->info('HTTP Client / Browser Cache-Control settings for /vagabit-secure-js-routes.json.')
                     ->children()
                         ->booleanNode('private')
                             ->defaultTrue()

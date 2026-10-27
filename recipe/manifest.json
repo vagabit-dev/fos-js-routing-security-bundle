@@ -1,0 +1,8 @@
+{
+    "bundles": {
+        "Vagabit\\FOSJsRoutingSecurityBundle\\FOSJsRoutingSecurityBundle": ["all"]
+    },
+    "copy-from-recipe": {
+        "config/": "%CONFIG_DIR%/"
+    }
+}

@@ -1,0 +1,3 @@
+  * Review security rules in <fg=yellow>config/packages/security.yaml</> to configure route access.
+  * Secured route endpoint is registered at <fg=yellow>/vagabit-secure-js-routes.json</> (route name: <fg=yellow>vagabit_secure_js_routes</>).
+  * Run <fg=yellow>php bin/console vagabit:js-routing:debug</> to inspect role-filtered route exposure.

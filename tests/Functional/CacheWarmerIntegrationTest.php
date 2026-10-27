@@ -51,7 +51,7 @@ class CacheWarmerIntegrationTest extends WebTestCase
         $this->assertArrayHasKey('admin_dashboard', $adminRoutes);
 
         // Now test HTTP request for anonymous user hits pre-warmed cache directly
-        $client->request('GET', '/js-routes.json');
+        $client->request('GET', '/vagabit-secure-js-routes.json');
         $this->assertResponseIsSuccessful();
 
         $responseContent = json_decode($client->getResponse()->getContent(), true);

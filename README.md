@@ -1,11 +1,11 @@
 # FOSJsRoutingSecurityBundle
 
-[![Latest Version](https://img.shields.io/badge/version1.0.0-alpha5-blue.svg)](https://packagist.org/packages/vagabit/fos-js-routing-security-bundle)
+[![Latest Version](https://img.shields.io/badge/version1.0.0-alpha6-blue.svg)](https://packagist.org/packages/vagabit/fos-js-routing-security-bundle)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Extends [FOSJsRoutingBundle](https://github.com/FriendsOfSymfony/FOSJsRoutingBundle) to dynamically filter and serve exposed routes based on user roles and permissions in Symfony 6.4 / 7.x / 8.x.
 
-Current version: **`1.0.0-alpha5`**
+Current version: **`1.0.0-alpha6`**
 
 
 The fundamental purpose of FOSJsRoutingBundle is to maximize developer productivity by 
@@ -42,7 +42,7 @@ mechanism is provided to avoid performance overhead.
 ### 1. Install via Composer
 
 ```bash
-composer require vagabit/fos-js-routing-security-bundle:^1.0.0-alpha5
+composer require vagabit/fos-js-routing-security-bundle:^1.0.0-alpha6
 ```
 
 ### 2. Enable the Bundle
@@ -58,12 +58,24 @@ return [
 ];
 ```
 
-### 3. Configure 
+### 3. Configure
 
-#### security.yaml
+#### 3.1 Register Controller Routing
 
-If you haven't already done so configure routes role access in `security.yaml`,
-the bundle will use it to know which routes to serve by user role.
+Because Symfony bundles do not automatically inject route definitions into host applications, register the bundle's controller routes in your application's routing configuration (e.g. `config/routes/fos_js_routing_security.yaml`):
+
+```yaml
+# config/routes/fos_js_routing_security.yaml
+vagabit_fos_js_routing_security:
+    resource: '@FOSJsRoutingSecurityBundle/src/Controller/'
+    type: attribute
+```
+
+> **Important:** Do **not** import the old FOSJsRouting route file (`@FOSJsRoutingBundle/Resources/config/routing/routing-sf4.xml` or `fos_js_routing_js`). The legacy endpoint bypasses this bundle's role-based response cache and HTTP security headers. Always use the secured endpoint (`/vagabit-secure-js-routes.json` or route name `vagabit_secure_js_routes`).
+
+#### 3.2 Configure Security Access Rules (`security.yaml`)
+
+If you haven't already done so, configure route role access in `security.yaml`. The bundle uses these rules to determine which routes to serve based on the user's role:
 
 ```yaml
 # config/packages/security.yaml
@@ -73,7 +85,7 @@ security:
         - { path: ^/account, roles: ROLE_USER }
 ```
 
-#### Exposing Routes with Options
+#### 3.3 Exposing Routes with Options
 
 Alternatively (or additionally) routes can be mae available to roles with the custom `role` option.
 
@@ -153,7 +165,7 @@ initRouting().then(() => {
 
 #### Option B: Server-Rendered Twig Layouts
 
-For traditional multi-page applications, publish bundle assets and include the router library and dynamic route definition script in your base template (`templates/base.html.twig`):
+For traditional multi-page applications, publish bundle assets, include the router library, and initialize route data by fetching the secured endpoint in your base template (`templates/base.html.twig`):
 
 ```bash
 php bin/console assets:install --symlink
@@ -163,8 +175,12 @@ php bin/console assets:install --symlink
 <!-- 1. Load Router Library -->
 <script src="{{ asset('bundles/fosjsrouting/js/router.min.js') }}"></script>
 
-<!-- 2. Load and register dynamic role-filtered routes -->
-<script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
+<!-- 2. Fetch and register dynamic role-filtered routes -->
+<script>
+    fetch('{{ path('vagabit_secure_js_routes') }}')
+        .then(response => response.json())
+        .then(data => fos.Router.setData(data));
+</script>
 ```
 
 #### Route Generation Examples

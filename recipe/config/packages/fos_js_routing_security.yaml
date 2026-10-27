@@ -1,0 +1,26 @@
+# fos_js_routing_security:
+#     # Server-side Cache TTL in seconds (integer or null).
+#     # - Positive integer (> 0): Cache expires after N seconds (e.g. 3600 for 1 hour).
+#     # - null (or ~ or "never"): Indefinite cache lifetime (entries never expire automatically).
+#     # - 0: Immediate expiration (disables caching / fresh extraction on every request).
+#     # cache_ttl: 3600
+#
+#     # Custom cache key prefix prepended to role hashes (default: 'js_routes_')
+#     # cache_prefix: 'js_routes_'
+#
+#     # Cache tag applied to route items for selective tag-based invalidation (default: 'fos_js_routing_security')
+#     # cache_tag: 'fos_js_routing_security'
+#
+#     # Role combinations to pre-warm in cache during cache:warmup or via console command
+#     # warmup_roles:
+#     #     - ROLE_ANONYMOUS
+#     #     - ROLE_USER
+#     #     - [ROLE_ADMIN, ROLE_USER]
+#
+#     # HTTP Client / Browser Cache-Control settings for /vagabit-secure-js-routes.json
+#     # http_cache:
+#     #     private: true
+#     #     no_store: true
+#     #     max_age: 0
+#     #     must_revalidate: false
+#     #     etag: false

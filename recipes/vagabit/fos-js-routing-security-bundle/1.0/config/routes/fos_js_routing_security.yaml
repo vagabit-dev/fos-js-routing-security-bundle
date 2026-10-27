@@ -1,0 +1,3 @@
+vagabit_fos_js_routing_security:
+    resource: '@FOSJsRoutingSecurityBundle/src/Controller/'
+    type: attribute
