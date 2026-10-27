@@ -148,6 +148,11 @@ class FOSJsRoutingSecurityExtensionTest extends TestCase
         $commandDef = $container->getDefinition(\Vagabit\FOSJsRoutingSecurityBundle\Command\WarmupJsRoutesCacheCommand::class);
         $this->assertTrue($commandDef->hasTag('console.command'));
 
+        // Verify DebugJsRoutesCommand registration and tag
+        $this->assertTrue($container->hasDefinition(\Vagabit\FOSJsRoutingSecurityBundle\Command\DebugJsRoutesCommand::class));
+        $debugCommandDef = $container->getDefinition(\Vagabit\FOSJsRoutingSecurityBundle\Command\DebugJsRoutesCommand::class);
+        $this->assertTrue($debugCommandDef->hasTag('console.command'));
+
         // Verify JsRoutingController registration and tag
         $this->assertTrue($container->hasDefinition(\Vagabit\FOSJsRoutingSecurityBundle\Controller\JsRoutingController::class));
         $controllerDef = $container->getDefinition(\Vagabit\FOSJsRoutingSecurityBundle\Controller\JsRoutingController::class);

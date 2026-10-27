@@ -21,6 +21,11 @@ class RoleFilteredJsRoutesExtractor implements ExposedRoutesExtractorInterface
     ) {
     }
 
+    public function getInnerExtractor(): ExposedRoutesExtractorInterface
+    {
+        return $this->innerExtractor;
+    }
+
     public function getRoutes(): RouteCollection
     {
         $allExposedRoutes = $this->innerExtractor->getRoutes();

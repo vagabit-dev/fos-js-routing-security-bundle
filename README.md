@@ -1,11 +1,11 @@
 # FOSJsRoutingSecurityBundle
 
-[![Latest Version](https://img.shields.io/badge/version1.0.0-alpha2-blue.svg)](https://packagist.org/packages/vagabit/fos-js-routing-security-bundle)
+[![Latest Version](https://img.shields.io/badge/version1.0.0-alpha3-blue.svg)](https://packagist.org/packages/vagabit/fos-js-routing-security-bundle)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Extends [FOSJsRoutingBundle](https://github.com/FriendsOfSymfony/FOSJsRoutingBundle) to dynamically filter and serve exposed routes based on user roles and permissions in Symfony 6.4 / 7.x / 8.x.
 
-Current version: **`1.0.0-alpha2`**
+Current version: **`1.0.0-alpha3`**
 
 
 The fundamental purpose of FOSJsRoutingBundle is to maximize developer productivity by 
@@ -30,6 +30,7 @@ This extension optimizes the system by aligning route delivery with actual user 
 - **Centralized Security Access Control**: Intercepts route extraction and matches route paths against `security.yaml` `access_control` rules via `Symfony\Component\Security\Http\AccessMapInterface`.
 - **Single & Multiple Role Route Options**: Supports declaring single (`role`) or multiple (`roles`) required roles directly on the route definition (e.g. `options: ['expose' => true, 'role' => 'ROLE_MANAGER']` or `options: ['expose' => true, 'roles' => ['ROLE_ADMIN', 'ROLE_MANAGER']]`).
 - **Role-Based Server-Side Caching**: Controller endpoint (`/js-routes.json`) caches route definitions keyed by the user's role combination (`js_routes_<hash>`), isolating cache entries per role configuration without repetitive path matching on every request.
+- **Role-Based Route Debugger Command**: Interactive console command (`vagabit:js-routing:debug`) to inspect route exposure, separating exposed from non-exposed routes and debugging role accessibility rules.
 - **Configurable HTTP Cache & Security Headers**: Secure by default with `private, no-store` headers, with configurable browser caching (`max_age`), revalidation (`must_revalidate`), public/private visibility, and conditional ETag handling (`304 Not Modified`).
 
 ---
@@ -39,7 +40,7 @@ This extension optimizes the system by aligning route delivery with actual user 
 ### 1. Install via Composer
 
 ```bash
-composer require vagabit/fos-js-routing-security-bundle:^1.0.0-alpha2
+composer require vagabit/fos-js-routing-security-bundle:^1.0.0-alpha3
 ```
 
 ### 2. Enable the Bundle
@@ -258,6 +259,50 @@ php bin/console vagabit:js-routing:warmup
 
 # Warm up specific role combinations on the fly
 php bin/console vagabit:js-routing:warmup --role=ROLE_ADMIN --role=ROLE_USER
+```
+
+#### Debugging Routes by Role (`vagabit:js-routing:debug`)
+
+The bundle provides a dedicated debugging command to inspect route exposure and verify which security roles are granted access to each route in the JavaScript router.
+
+##### 1. Default Route Dump (Exposed vs Non-Exposed)
+By default, the command inspects all registered application routes, separating exposed routes from non-exposed routes, and lists the authorized roles for each exposed route (evaluating route `role`/`roles` options and `security.yaml` `access_control` rules):
+
+```bash
+php bin/console vagabit:js-routing:debug
+```
+
+Example output:
+```text
+ ------------------ ------------------ ----------- -------------------------------------- 
+  Route Name         Path               Method(s)   Accessible Roles in JS                
+ ------------------ ------------------ ----------- -------------------------------------- 
+  public_home        /public/home       ANY         PUBLIC (All roles / Anonymous)        
+  admin_dashboard    /admin/dashboard   GET         access_control: [ROLE_ADMIN]          
+  account_profile    /account/profile   ANY         access_control: [ROLE_USER]           
+  manager_reports    /manager/reports   ANY         Route Option: [ROLE_MANAGER]          
+ ------------------ ------------------ ----------- -------------------------------------- 
+
+ ------------------- -------------------------- ----------- 
+  Route Name          Path                       Method(s)   
+ ------------------- -------------------------- ----------- 
+  fos_js_routing_js   /js/routing.{_format}      GET         
+  fos_js_routing_data /js_routes.{_format}       GET         
+ ------------------- -------------------------- ----------- 
+```
+
+##### 2. Filter by Role(s)
+To see only the exposed routes that can be accessed by specific roles, use the `--role` (or `-r`) option with one or more roles (comma-separated or multiple flags):
+
+```bash
+# Filter routes accessible to ROLE_ADMIN
+php bin/console vagabit:js-routing:debug --role=ROLE_ADMIN
+
+# Filter routes accessible to users holding either ROLE_ADMIN or ROLE_USER
+php bin/console vagabit:js-routing:debug --role=ROLE_ADMIN,ROLE_USER
+
+# Alternative syntax using multiple flags
+php bin/console vagabit:js-routing:debug -r ROLE_ADMIN -r ROLE_USER
 ```
 
 #### Selective Cache Invalidation

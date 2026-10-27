@@ -8,6 +8,7 @@ use FOS\JsRoutingBundle\Extractor\ExposedRoutesExtractorInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Reference;
+use Vagabit\FOSJsRoutingSecurityBundle\Command\DebugJsRoutesCommand;
 use Vagabit\FOSJsRoutingSecurityBundle\Command\WarmupJsRoutesCacheCommand;
 use Vagabit\FOSJsRoutingSecurityBundle\Controller\JsRoutingController;
 use Vagabit\FOSJsRoutingSecurityBundle\Service\JsRoutesCacheWarmer;
@@ -70,6 +71,18 @@ class FOSJsRoutingSecurityExtension extends Extension
         $container->register(WarmupJsRoutesCacheCommand::class, WarmupJsRoutesCacheCommand::class)
             ->setArguments([
                 new Reference(JsRoutesCacheWarmer::class),
+            ])
+            ->addTag('console.command')
+            ->setPublic(true);
+
+        // Register DebugJsRoutesCommand
+        $container->register(DebugJsRoutesCommand::class, DebugJsRoutesCommand::class)
+            ->setArguments([
+                new Reference('router'),
+                new Reference('fos_js_routing.extractor'),
+                new Reference('security.access_map'),
+                new Reference('security.token_storage', ContainerBuilder::NULL_ON_INVALID_REFERENCE),
+                new Reference('security.authorization_checker', ContainerBuilder::NULL_ON_INVALID_REFERENCE),
             ])
             ->addTag('console.command')
             ->setPublic(true);
