@@ -85,4 +85,24 @@ class JsRoutingControllerWebTest extends WebTestCase
         $this->assertArrayNotHasKey('admin_dashboard', $routes);
         $this->assertArrayNotHasKey('manager_reports', $routes);
     }
+
+    public function testGetRoutesEndpointWithCallback(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/vagabit-secure-js-routes.json?callback=fos.Router.setData');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertStringStartsWith('text/javascript', (string) $client->getResponse()->headers->get('Content-Type'));
+        $content = (string) $client->getResponse()->getContent();
+        $this->assertStringStartsWith('/**/fos.Router.setData({', $content);
+        $this->assertStringEndsWith(');', $content);
+    }
+
+    public function testGetRoutesEndpointWithInvalidCallbackReturns400(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/vagabit-secure-js-routes.json?callback=invalid(callback)');
+
+        $this->assertResponseStatusCodeSame(400);
+    }
 }

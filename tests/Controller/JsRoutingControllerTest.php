@@ -363,4 +363,47 @@ class JsRoutingControllerTest extends TestCase
 
         $this->assertSame(304, $response2->getStatusCode());
     }
+
+    public function testGetRoutesWithValidCallback(): void
+    {
+        $extractor = $this->createMock(ExposedRoutesExtractorInterface::class);
+        $routes = new RouteCollection();
+        $routes->add('home', new Route('/home', [], [], ['expose' => true]));
+        $extractor->method('getRoutes')->willReturn($routes);
+        $extractor->method('getBaseUrl')->willReturn('');
+        $extractor->method('getPrefix')->willReturn('');
+        $extractor->method('getHost')->willReturn('localhost');
+        $extractor->method('getPort')->willReturn('80');
+        $extractor->method('getScheme')->willReturn('http');
+
+        $cache = $this->createMock(CacheInterface::class);
+        $cache->method('get')->willReturnCallback(fn ($k, $cb) => $cb($this->createMock(ItemInterface::class)));
+
+        $controller = new JsRoutingController();
+
+        $request = Request::create('/vagabit-secure-js-routes.json?callback=fos.Router.setData');
+        $response = $controller->getRoutes($request, $extractor, $cache);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('text/javascript', $response->headers->get('Content-Type'));
+        $content = (string) $response->getContent();
+        $this->assertStringStartsWith('/**/fos.Router.setData({', $content);
+        $this->assertStringEndsWith(');', $content);
+    }
+
+    public function testGetRoutesWithInvalidCallbackThrowsBadRequest(): void
+    {
+        $extractor = $this->createMock(ExposedRoutesExtractorInterface::class);
+        $cache = $this->createMock(CacheInterface::class);
+        $cache->method('get')->willReturnCallback(fn ($k, $cb) => $cb($this->createMock(ItemInterface::class)));
+
+        $controller = new JsRoutingController();
+
+        $request = Request::create('/vagabit-secure-js-routes.json?callback=<script>alert(1)</script>');
+
+        $this->expectException(\Symfony\Component\HttpKernel\Exception\BadRequestHttpException::class);
+        $this->expectExceptionMessage('Invalid JSONP callback value');
+
+        $controller->getRoutes($request, $extractor, $cache);
+    }
 }

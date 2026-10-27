@@ -9,6 +9,7 @@ use FOS\JsRoutingBundle\Response\RoutesResponse;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -48,7 +49,7 @@ class JsRoutingController
         return $previous;
     }
 
-    #[Route('/vagabit-secure-js-routes.json', name: 'vagabit_secure_js_routes', methods: ['GET'])]
+    #[Route('/vagabit-secure-js-routes.{_format}', name: 'vagabit_secure_js_routes', requirements: ['_format' => 'json|js'], defaults: ['_format' => 'json'], methods: ['GET'])]
     public function getRoutes(
         Request $request,
         ExposedRoutesExtractorInterface $extractor,
@@ -102,8 +103,19 @@ class JsRoutingController
             ];
         });
 
-        // 3. Return JSON with browser security and HTTP cache headers
+        // 3. Return JSON/JSONP with browser security and HTTP cache headers
         $response = new JsonResponse($routesData);
+
+        if ($request->query->has('callback')) {
+            $callback = $request->query->get('callback');
+            if (null !== $callback && '' !== $callback) {
+                try {
+                    $response->setCallback($callback);
+                } catch (\InvalidArgumentException $e) {
+                    throw new BadRequestHttpException('Invalid JSONP callback value', $e);
+                }
+            }
+        }
 
         if (!empty($this->httpCache['private'])) {
             $response->setPrivate();
