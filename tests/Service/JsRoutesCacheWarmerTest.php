@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Service;
+namespace Vagabit\FOSJsRoutingSecurityBundle\Tests\Service;
 
-use App\Service\JsRoutesCacheWarmer;
 use FOS\JsRoutingBundle\Extractor\ExposedRoutesExtractorInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Routing\Route;
@@ -14,6 +13,7 @@ use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\User\InMemoryUser;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Vagabit\FOSJsRoutingSecurityBundle\Service\JsRoutesCacheWarmer;
 
 class JsRoutesCacheWarmerTest extends TestCase
 {

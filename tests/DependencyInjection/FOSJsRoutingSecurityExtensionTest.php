@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\DependencyInjection;
+namespace Vagabit\FOSJsRoutingSecurityBundle\Tests\DependencyInjection;
 
-use App\DependencyInjection\FOSJsRoutingSecurityExtension;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Vagabit\FOSJsRoutingSecurityBundle\DependencyInjection\FOSJsRoutingSecurityExtension;
 
 class FOSJsRoutingSecurityExtensionTest extends TestCase
 {
@@ -134,23 +134,23 @@ class FOSJsRoutingSecurityExtensionTest extends TestCase
         $this->assertSame('fos_js_routing.extractor', (string) $container->getAlias(\FOS\JsRoutingBundle\Extractor\ExposedRoutesExtractorInterface::class));
 
         // Verify RoleFilteredJsRoutesExtractor decoration
-        $this->assertTrue($container->hasDefinition(\App\Service\RoleFilteredJsRoutesExtractor::class));
-        $decoratorDef = $container->getDefinition(\App\Service\RoleFilteredJsRoutesExtractor::class);
+        $this->assertTrue($container->hasDefinition(\Vagabit\FOSJsRoutingSecurityBundle\Service\RoleFilteredJsRoutesExtractor::class));
+        $decoratorDef = $container->getDefinition(\Vagabit\FOSJsRoutingSecurityBundle\Service\RoleFilteredJsRoutesExtractor::class);
         $this->assertSame(['fos_js_routing.extractor', null, 0], $decoratorDef->getDecoratedService());
 
         // Verify JsRoutesCacheWarmer registration and tag
-        $this->assertTrue($container->hasDefinition(\App\Service\JsRoutesCacheWarmer::class));
-        $warmerDef = $container->getDefinition(\App\Service\JsRoutesCacheWarmer::class);
+        $this->assertTrue($container->hasDefinition(\Vagabit\FOSJsRoutingSecurityBundle\Service\JsRoutesCacheWarmer::class));
+        $warmerDef = $container->getDefinition(\Vagabit\FOSJsRoutingSecurityBundle\Service\JsRoutesCacheWarmer::class);
         $this->assertTrue($warmerDef->hasTag('kernel.cache_warmer'));
 
         // Verify WarmupJsRoutesCacheCommand registration and tag
-        $this->assertTrue($container->hasDefinition(\App\Command\WarmupJsRoutesCacheCommand::class));
-        $commandDef = $container->getDefinition(\App\Command\WarmupJsRoutesCacheCommand::class);
+        $this->assertTrue($container->hasDefinition(\Vagabit\FOSJsRoutingSecurityBundle\Command\WarmupJsRoutesCacheCommand::class));
+        $commandDef = $container->getDefinition(\Vagabit\FOSJsRoutingSecurityBundle\Command\WarmupJsRoutesCacheCommand::class);
         $this->assertTrue($commandDef->hasTag('console.command'));
 
         // Verify JsRoutingController registration and tag
-        $this->assertTrue($container->hasDefinition(\App\Controller\JsRoutingController::class));
-        $controllerDef = $container->getDefinition(\App\Controller\JsRoutingController::class);
+        $this->assertTrue($container->hasDefinition(\Vagabit\FOSJsRoutingSecurityBundle\Controller\JsRoutingController::class));
+        $controllerDef = $container->getDefinition(\Vagabit\FOSJsRoutingSecurityBundle\Controller\JsRoutingController::class);
         $this->assertTrue($controllerDef->hasTag('controller.service_arguments'));
     }
 }

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Functional;
+namespace Vagabit\FOSJsRoutingSecurityBundle\Tests\Functional;
 
-use App\Kernel;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Vagabit\FOSJsRoutingSecurityBundle\Kernel;
 
 class JsRoutingControllerWebTest extends WebTestCase
 {

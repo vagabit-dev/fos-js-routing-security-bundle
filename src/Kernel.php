@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App;
+namespace Vagabit\FOSJsRoutingSecurityBundle;
 
 use FOS\JsRoutingBundle\FOSJsRoutingBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;

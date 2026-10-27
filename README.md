@@ -51,7 +51,7 @@ If you use Symfony Flex, the bundle is enabled automatically upon installation. 
 return [
     // ...
     FOS\JsRoutingBundle\FOSJsRoutingBundle::class => ['all' => true],
-    App\FOSJsRoutingSecurityBundle::class => ['all' => true],
+    Vagabit\FOSJsRoutingSecurityBundle\FOSJsRoutingSecurityBundle::class => ['all' => true],
 ];
 ```
 
@@ -240,7 +240,7 @@ Depending on your application's architecture and performance requirements, you c
 
 #### Cache Warmer
 
-The bundle includes `App\Service\JsRoutesCacheWarmer`, which pre-populates role-filtered routes in your application cache so end users always hit a warm cache on first request:
+The bundle includes `Vagabit\FOSJsRoutingSecurityBundle\Service\JsRoutesCacheWarmer`, which pre-populates role-filtered routes in your application cache so end users always hit a warm cache on first request:
 
 ##### 1. Automatic Warmup on `cache:warmup`
 The cache warmer implements Symfony's `CacheWarmerInterface` (`kernel.cache_warmer`) and is executed automatically whenever `cache:warmup` or `cache:clear` runs:

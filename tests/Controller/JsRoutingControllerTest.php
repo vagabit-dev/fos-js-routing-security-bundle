@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Controller;
+namespace Vagabit\FOSJsRoutingSecurityBundle\Tests\Controller;
 
-use App\Controller\JsRoutingController;
 use FOS\JsRoutingBundle\Extractor\ExposedRoutesExtractorInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,6 +14,7 @@ use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\User\InMemoryUser;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Vagabit\FOSJsRoutingSecurityBundle\Controller\JsRoutingController;
 
 class JsRoutingControllerTest extends TestCase
 {

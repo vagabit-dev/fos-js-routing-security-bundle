@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Functional;
+namespace Vagabit\FOSJsRoutingSecurityBundle\Tests\Functional;
 
-use App\Service\JsRoutesCacheWarmer;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Contracts\Cache\CacheInterface;
+use Vagabit\FOSJsRoutingSecurityBundle\Command\WarmupJsRoutesCacheCommand;
+use Vagabit\FOSJsRoutingSecurityBundle\Service\JsRoutesCacheWarmer;
 
 class CacheWarmerIntegrationTest extends WebTestCase
 {
@@ -63,8 +64,8 @@ class CacheWarmerIntegrationTest extends WebTestCase
         $client = static::createClient();
         $container = static::getContainer();
 
-        /** @var \App\Command\WarmupJsRoutesCacheCommand $command */
-        $command = $container->get(\App\Command\WarmupJsRoutesCacheCommand::class);
+        /** @var WarmupJsRoutesCacheCommand $command */
+        $command = $container->get(WarmupJsRoutesCacheCommand::class);
 
         $tester = new \Symfony\Component\Console\Tester\CommandTester($command);
         $tester->execute(['--role' => ['ROLE_ADMIN']]);

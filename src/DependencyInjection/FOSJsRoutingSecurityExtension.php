@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\DependencyInjection;
+namespace Vagabit\FOSJsRoutingSecurityBundle\DependencyInjection;
 
-use App\Command\WarmupJsRoutesCacheCommand;
-use App\Controller\JsRoutingController;
-use App\Service\JsRoutesCacheWarmer;
-use App\Service\RoleFilteredJsRoutesExtractor;
 use FOS\JsRoutingBundle\Extractor\ExposedRoutesExtractorInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Reference;
+use Vagabit\FOSJsRoutingSecurityBundle\Command\WarmupJsRoutesCacheCommand;
+use Vagabit\FOSJsRoutingSecurityBundle\Controller\JsRoutingController;
+use Vagabit\FOSJsRoutingSecurityBundle\Service\JsRoutesCacheWarmer;
+use Vagabit\FOSJsRoutingSecurityBundle\Service\RoleFilteredJsRoutesExtractor;
 
 class FOSJsRoutingSecurityExtension extends Extension
 {

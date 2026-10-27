@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Functional;
+namespace Vagabit\FOSJsRoutingSecurityBundle\Tests\Functional;
 
-use App\Kernel;
 use FOS\JsRoutingBundle\Extractor\ExposedRoutesExtractorInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\User\InMemoryUser;
+use Vagabit\FOSJsRoutingSecurityBundle\Kernel;
 
 class RoleBasedRoutingIntegrationTest extends KernelTestCase
 {

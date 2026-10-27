@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Service;
+namespace Vagabit\FOSJsRoutingSecurityBundle\Service;
 
 use FOS\JsRoutingBundle\Extractor\ExposedRoutesExtractorInterface;
 use Symfony\Component\Config\Resource\ResourceInterface;

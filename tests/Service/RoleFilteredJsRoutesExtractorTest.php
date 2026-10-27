@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Service;
+namespace Vagabit\FOSJsRoutingSecurityBundle\Tests\Service;
 
-use App\Service\RoleFilteredJsRoutesExtractor;
 use FOS\JsRoutingBundle\Extractor\ExposedRoutesExtractorInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,6 +11,7 @@ use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Http\AccessMapInterface;
+use Vagabit\FOSJsRoutingSecurityBundle\Service\RoleFilteredJsRoutesExtractor;
 
 class RoleFilteredJsRoutesExtractorTest extends TestCase
 {

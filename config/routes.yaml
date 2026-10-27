@@ -1,13 +1,13 @@
 controllers:
     resource:
         path: ../src/Controller/
-        namespace: App\Controller
+        namespace: Vagabit\FOSJsRoutingSecurityBundle\Controller
     type: attribute
 
 test_fixtures_controllers:
     resource:
         path: ../tests/Fixtures/Controller/
-        namespace: App\Tests\Fixtures\Controller
+        namespace: Vagabit\FOSJsRoutingSecurityBundle\Tests\Fixtures\Controller
     type: attribute
 
 fos_js_routing:

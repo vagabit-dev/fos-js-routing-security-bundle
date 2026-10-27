@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Command;
+namespace Vagabit\FOSJsRoutingSecurityBundle\Tests\Command;
 
-use App\Command\WarmupJsRoutesCacheCommand;
-use App\Service\JsRoutesCacheWarmer;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
+use Vagabit\FOSJsRoutingSecurityBundle\Command\WarmupJsRoutesCacheCommand;
+use Vagabit\FOSJsRoutingSecurityBundle\Service\JsRoutesCacheWarmer;
 
 class WarmupJsRoutesCacheCommandTest extends TestCase
 {

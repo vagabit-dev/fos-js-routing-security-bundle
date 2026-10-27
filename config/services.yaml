@@ -4,6 +4,6 @@ services:
         autoconfigure: true
         public: true
 
-    App\Tests\Fixtures\Controller\:
+    Vagabit\FOSJsRoutingSecurityBundle\Tests\Fixtures\Controller\:
         resource: '../tests/Fixtures/Controller/'
         tags: ['controller.service_arguments']
