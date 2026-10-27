@@ -48,7 +48,7 @@ class JsRoutingController
         return $previous;
     }
 
-    #[Route('/js-routes.json', name: 'app_js_routes', methods: ['GET'])]
+    #[Route('/vagabit-secure-js-routes.json', name: 'vagabit_secure_js_routes', methods: ['GET'])]
     public function getRoutes(
         Request $request,
         ExposedRoutesExtractorInterface $extractor,

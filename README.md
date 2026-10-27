@@ -31,7 +31,7 @@ mechanism is provided to avoid performance overhead.
 - **Zero-Configuration Activation**: Automatically registers and decorates `fos_js_routing.extractor` as soon as the bundle is enabled in `bundles.php`—no manual service wiring in `services.yaml` needed.
 - **Centralized Security Access Control**: Intercepts route extraction and matches route paths against `security.yaml` `access_control` rules via `Symfony\Component\Security\Http\AccessMapInterface`.
 - **Single & Multiple Role Route Options**: Supports declaring single (`role`) or multiple (`roles`) required roles directly on the route definition (e.g. `options: ['expose' => true, 'role' => 'ROLE_MANAGER']` or `options: ['expose' => true, 'roles' => ['ROLE_ADMIN', 'ROLE_MANAGER']]`).
-- **Role-Based Server-Side Caching**: Controller endpoint (`/js-routes.json`) caches route definitions keyed by the user's role combination (`js_routes_<hash>`), isolating cache entries per role configuration without repetitive path matching on every request.
+- **Role-Based Server-Side Caching**: Controller endpoint (`/vagabit-secure-js-routes.json`) caches route definitions keyed by the user's role combination (`js_routes_<hash>`), isolating cache entries per role configuration without repetitive path matching on every request.
 - **Role-Based Route Debugger Command**: Interactive console command (`vagabit:js-routing:debug`) to inspect route exposure, separating exposed from non-exposed routes and debugging role accessibility rules.
 - **Configurable HTTP Cache & Security Headers**: Secure by default with `private, no-store` headers, with configurable browser caching (`max_age`), revalidation (`must_revalidate`), public/private visibility, and conditional ETag handling (`304 Not Modified`).
 
@@ -131,13 +131,13 @@ npm install fos-routing --save
 yarn add fos-routing
 ```
 
-Fetch the dynamic `/js-routes.json` endpoint upon application bootstrap to initialize the router with user-specific routes:
+Fetch the dynamic `/vagabit-secure-js-routes.json` endpoint upon application bootstrap to initialize the router with user-specific routes:
 
 ```javascript
 import Routing from 'fos-routing';
 
 async function initRouting() {
-    const response = await fetch('/js-routes.json', {
+    const response = await fetch('/vagabit-secure-js-routes.json', {
         headers: { 'Accept': 'application/json' }
     });
     const routesData = await response.json();
@@ -212,7 +212,7 @@ fos_js_routing_security:
         - ROLE_USER
         - [ROLE_ADMIN, ROLE_USER]
 
-    # HTTP Client / Browser Cache-Control settings for /js-routes.json
+    # HTTP Client / Browser Cache-Control settings for /vagabit-secure-js-routes.json
     http_cache:
         # Mark response as private (recommended for user-specific routes, default: true)
         private: true
