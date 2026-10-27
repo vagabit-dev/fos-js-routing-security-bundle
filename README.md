@@ -305,6 +305,41 @@ php bin/console vagabit:js-routing:debug --role=ROLE_ADMIN,ROLE_USER
 php bin/console vagabit:js-routing:debug -r ROLE_ADMIN -r ROLE_USER
 ```
 
+##### 3. Inspect a Specific Route by Name or Path
+To inspect a single route's full configuration, JavaScript exposure state, and security access rules, use the `--route` option (or `--name`, `--path`, or as a positional argument):
+
+```bash
+# Inspect by route name
+php bin/console vagabit:js-routing:debug --route=admin_dashboard
+
+# Inspect by route path
+php bin/console vagabit:js-routing:debug --route=/admin/dashboard
+
+# Positional argument syntax
+php bin/console vagabit:js-routing:debug admin_dashboard
+
+# Combine with --role to check if a specific route is accessible for given role(s)
+php bin/console vagabit:js-routing:debug --route=admin_dashboard --role=ROLE_ADMIN
+```
+
+Example inspection output:
+```text
+Route Details: admin_dashboard
++------------------------+------------------------------------+
+| Property               | Value                              |
++------------------------+------------------------------------+
+| Route Name             | admin_dashboard                    |
+| Path                   | /admin/dashboard                   |
+| Method(s)              | GET                                |
+| Scheme(s)              | ANY                                |
+| Host                   | ANY                                |
+| Exposed to JavaScript  | Yes                                |
+| Route Option Role(s)   | None                               |
+| access_control Rule(s) | ROLE_ADMIN                         |
+| Accessible Roles in JS | access_control: [ROLE_ADMIN]       |
++------------------------+------------------------------------+
+```
+
 #### Selective Cache Invalidation
 
 When using a Symfony tag-aware cache pool (such as `TagAwareAdapter`, Redis, or Memcached), all cached role combinations can be invalidated simultaneously when routing or security rules change without clearing the entire application cache:

@@ -295,4 +295,148 @@ class DebugJsRoutesCommandTest extends TestCase
         $this->assertStringContainsString('manager_reports', $output);
         $this->assertStringNotContainsString('admin_dashboard', $output);
     }
+
+    public function testExecuteInspectRouteByName(): void
+    {
+        $adminRoute = new Route('/admin/dashboard', [], [], ['expose' => true], '', [], ['GET']);
+        $this->routeCollection->add('admin_dashboard', $adminRoute);
+
+        $this->extractor->method('isRouteExposed')->willReturn(true);
+        $this->accessMap->method('getPatterns')->willReturn([['ROLE_ADMIN'], null]);
+
+        $command = new DebugJsRoutesCommand(
+            $this->router,
+            $this->extractor,
+            $this->accessMap,
+            $this->tokenStorage,
+            $this->authChecker
+        );
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['--route' => 'admin_dashboard']);
+
+        $this->assertSame(0, $commandTester->getStatusCode());
+        $output = $commandTester->getDisplay();
+
+        $this->assertStringContainsString('FOSJsRouting Security - Route Inspection: admin_dashboard', $output);
+        $this->assertStringContainsString('Route Details: admin_dashboard', $output);
+        $this->assertStringContainsString('admin_dashboard', $output);
+        $this->assertStringContainsString('/admin/dashboard', $output);
+        $this->assertStringContainsString('GET', $output);
+        $this->assertStringContainsString('Yes', $output);
+        $this->assertStringContainsString('ROLE_ADMIN', $output);
+    }
+
+    public function testExecuteInspectRouteByPath(): void
+    {
+        $adminRoute = new Route('/admin/dashboard', [], [], ['expose' => true], '', [], ['GET']);
+        $this->routeCollection->add('admin_dashboard', $adminRoute);
+
+        $this->extractor->method('isRouteExposed')->willReturn(true);
+        $this->accessMap->method('getPatterns')->willReturn([['ROLE_ADMIN'], null]);
+
+        $command = new DebugJsRoutesCommand(
+            $this->router,
+            $this->extractor,
+            $this->accessMap,
+            $this->tokenStorage,
+            $this->authChecker
+        );
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['--path' => '/admin/dashboard']);
+
+        $this->assertSame(0, $commandTester->getStatusCode());
+        $output = $commandTester->getDisplay();
+
+        $this->assertStringContainsString('Route Inspection: /admin/dashboard', $output);
+        $this->assertStringContainsString('admin_dashboard', $output);
+        $this->assertStringContainsString('/admin/dashboard', $output);
+    }
+
+    public function testExecuteInspectRouteWithRoleFilter(): void
+    {
+        $adminRoute = new Route('/admin/dashboard', [], [], ['expose' => true], '', [], ['GET']);
+        $this->routeCollection->add('admin_dashboard', $adminRoute);
+
+        $this->extractor->method('isRouteExposed')->willReturn(true);
+        $this->accessMap->method('getPatterns')->willReturn([['ROLE_ADMIN'], null]);
+
+        $roleFilteredExtractor = new RoleFilteredJsRoutesExtractor(
+            $this->extractor,
+            $this->authChecker,
+            $this->accessMap
+        );
+
+        $this->authChecker->method('isGranted')
+            ->with('ROLE_ADMIN')
+            ->willReturn(true);
+
+        $command = new DebugJsRoutesCommand(
+            $this->router,
+            $roleFilteredExtractor,
+            $this->accessMap,
+            $this->tokenStorage,
+            $this->authChecker
+        );
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute([
+            '--route' => 'admin_dashboard',
+            '--role' => ['ROLE_ADMIN'],
+        ]);
+
+        $this->assertSame(0, $commandTester->getStatusCode());
+        $output = $commandTester->getDisplay();
+
+        $this->assertStringContainsString('Route Details: admin_dashboard', $output);
+        $this->assertStringContainsString('Accessible for Role(s) [ROLE_ADMIN]', $output);
+        $this->assertStringContainsString('Yes', $output);
+    }
+
+    public function testExecuteInspectNonExposedRoute(): void
+    {
+        $internalRoute = new Route('/internal/metrics');
+        $this->routeCollection->add('internal_metrics', $internalRoute);
+
+        $this->extractor->method('isRouteExposed')->willReturn(false);
+        $this->accessMap->method('getPatterns')->willReturn([null, null]);
+
+        $command = new DebugJsRoutesCommand(
+            $this->router,
+            $this->extractor,
+            $this->accessMap,
+            $this->tokenStorage,
+            $this->authChecker
+        );
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['--route' => 'internal_metrics']);
+
+        $this->assertSame(0, $commandTester->getStatusCode());
+        $output = $commandTester->getDisplay();
+
+        $this->assertStringContainsString('Exposed to JavaScript', $output);
+        $this->assertStringContainsString('No', $output);
+        $this->assertStringContainsString('Not exposed to JavaScript', $output);
+    }
+
+    public function testExecuteInspectRouteNotFound(): void
+    {
+        $command = new DebugJsRoutesCommand(
+            $this->router,
+            $this->extractor,
+            $this->accessMap,
+            $this->tokenStorage,
+            $this->authChecker
+        );
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['--route' => 'non_existing_route']);
+
+        $this->assertSame(1, $commandTester->getStatusCode());
+        $output = $commandTester->getDisplay();
+
+        $this->assertStringContainsString('Route "non_existing_route" not found (checked by name and path).', $output);
+    }
 }

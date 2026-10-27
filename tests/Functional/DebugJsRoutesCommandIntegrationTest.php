@@ -96,4 +96,76 @@ class DebugJsRoutesCommandIntegrationTest extends KernelTestCase
         // manager_reports is not accessible by ROLE_ADMIN or ROLE_USER
         $this->assertStringNotContainsString('manager_reports', $output);
     }
+
+    public function testInspectRouteByName(): void
+    {
+        $kernel = self::$kernel;
+        $application = new Application($kernel);
+
+        $command = $application->find('vagabit:js-routing:debug');
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['--route' => 'admin_dashboard']);
+
+        $this->assertSame(0, $commandTester->getStatusCode());
+        $output = $commandTester->getDisplay();
+
+        $this->assertStringContainsString('Route Details: admin_dashboard', $output);
+        $this->assertStringContainsString('admin_dashboard', $output);
+        $this->assertStringContainsString('/admin/dashboard', $output);
+        $this->assertStringContainsString('ANY', $output);
+        $this->assertStringContainsString('Yes', $output);
+        $this->assertStringContainsString('access_control: [ROLE_ADMIN]', $output);
+    }
+
+    public function testInspectRouteByPath(): void
+    {
+        $kernel = self::$kernel;
+        $application = new Application($kernel);
+
+        $command = $application->find('vagabit:js-routing:debug');
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['--route' => '/public/home']);
+
+        $this->assertSame(0, $commandTester->getStatusCode());
+        $output = $commandTester->getDisplay();
+
+        $this->assertStringContainsString('Route Details: public_home', $output);
+        $this->assertStringContainsString('/public/home', $output);
+        $this->assertStringContainsString('PUBLIC (All roles / Anonymous)', $output);
+    }
+
+    public function testInspectRouteWithRoleFilter(): void
+    {
+        $kernel = self::$kernel;
+        $application = new Application($kernel);
+
+        $command = $application->find('vagabit:js-routing:debug');
+        $commandTester = new CommandTester($command);
+        $commandTester->execute([
+            '--route' => 'admin_dashboard',
+            '--role' => ['ROLE_ADMIN'],
+        ]);
+
+        $this->assertSame(0, $commandTester->getStatusCode());
+        $output = $commandTester->getDisplay();
+
+        $this->assertStringContainsString('Route Details: admin_dashboard', $output);
+        $this->assertStringContainsString('Accessible for Role(s) [ROLE_ADMIN]', $output);
+        $this->assertStringContainsString('Yes', $output);
+    }
+
+    public function testInspectRouteNotFound(): void
+    {
+        $kernel = self::$kernel;
+        $application = new Application($kernel);
+
+        $command = $application->find('vagabit:js-routing:debug');
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['--route' => 'unknown_route_xyz']);
+
+        $this->assertSame(1, $commandTester->getStatusCode());
+        $output = $commandTester->getDisplay();
+
+        $this->assertStringContainsString('Route "unknown_route_xyz" not found (checked by name and path).', $output);
+    }
 }

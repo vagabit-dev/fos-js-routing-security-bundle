@@ -7,6 +7,7 @@ namespace Vagabit\FOSJsRoutingSecurityBundle\Command;
 use FOS\JsRoutingBundle\Extractor\ExposedRoutesExtractorInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -33,12 +34,19 @@ use Vagabit\FOSJsRoutingSecurityBundle\Service\RoleFilteredJsRoutesExtractor;
  *     1. Exposed Routes - includes route name, path, methods, and the roles authorized in JS.
  *     2. Non-Exposed Routes - routes that are not exposed to JavaScript.
  *
+ * Route inspection execution (--route / --name / --path or argument):
+ *   Inspects a specific route by name or path, displaying its complete configuration,
+ *   exposure status, security attributes, and role permissions.
+ *
  * Role-filtered execution (--role):
  *   Filters and displays only exposed routes that are accessible to the specified role(s).
  *   Accepts single roles, comma-separated lists, or multiple option flags.
  *
  * Usage examples:
  *   php bin/console vagabit:js-routing:debug
+ *   php bin/console vagabit:js-routing:debug --route=admin_dashboard
+ *   php bin/console vagabit:js-routing:debug --route=/admin/dashboard
+ *   php bin/console vagabit:js-routing:debug --route=admin_dashboard --role=ROLE_ADMIN
  *   php bin/console vagabit:js-routing:debug --role=ROLE_ADMIN
  *   php bin/console vagabit:js-routing:debug --role=ROLE_ADMIN,ROLE_USER
  *   php bin/console vagabit:js-routing:debug -r ROLE_MANAGER
@@ -62,6 +70,29 @@ class DebugJsRoutesCommand extends Command
     protected function configure(): void
     {
         $this
+            ->addArgument(
+                'route',
+                InputArgument::OPTIONAL,
+                'The route name or path to inspect'
+            )
+            ->addOption(
+                'route',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Check a specific route by name or path (e.g. --route=admin_dashboard or --route=/admin/dashboard)'
+            )
+            ->addOption(
+                'name',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Check a specific route by name (e.g. --name=admin_dashboard)'
+            )
+            ->addOption(
+                'path',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Check a specific route by path (e.g. --path=/admin/dashboard)'
+            )
             ->addOption(
                 'role',
                 'r',
@@ -75,9 +106,24 @@ class DebugJsRoutesCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $allRoutes = $this->router->getRouteCollection()->all();
 
+        /** @var string|null $routeOption */
+        $routeOption = $input->getOption('route');
+        /** @var string|null $nameOption */
+        $nameOption = $input->getOption('name');
+        /** @var string|null $pathOption */
+        $pathOption = $input->getOption('path');
+        /** @var string|null $routeArgument */
+        $routeArgument = $input->getArgument('route');
+
+        $routeQuery = $routeOption ?? $nameOption ?? $pathOption ?? $routeArgument;
+
         /** @var string[]|string|null $roleInput */
         $roleInput = $input->getOption('role');
         $filteredRoles = $this->parseRoles($roleInput);
+
+        if (null !== $routeQuery && '' !== trim((string) $routeQuery)) {
+            return $this->executeInspectRoute($io, $allRoutes, trim((string) $routeQuery), $filteredRoles);
+        }
 
         if (!empty($filteredRoles)) {
             return $this->executeFilteredByRole($io, $allRoutes, $filteredRoles);
@@ -197,6 +243,98 @@ class DebugJsRoutesCommand extends Command
         }
 
         return Command::SUCCESS;
+    }
+
+    /**
+     * Inspects a specific route by name or path.
+     *
+     * @param array<string, Route> $allRoutes
+     * @param string[] $filteredRoles
+     */
+    private function executeInspectRoute(SymfonyStyle $io, array $allRoutes, string $query, array $filteredRoles): int
+    {
+        $matchingRoutes = $this->findMatchingRoutes($allRoutes, $query);
+
+        if (empty($matchingRoutes)) {
+            $io->error(sprintf('Route "%s" not found (checked by name and path).', $query));
+
+            return Command::FAILURE;
+        }
+
+        $io->title(sprintf('FOSJsRouting Security - Route Inspection: %s', $query));
+
+        foreach ($matchingRoutes as $name => $route) {
+            $isExposed = $this->isRouteExposedInJs($route, $name);
+            $roleOption = $route->getOption('role') ?? $route->getOption('roles');
+            $optionRoles = null;
+            if (null !== $roleOption && false !== $roleOption && '' !== $roleOption) {
+                $optionRoles = is_array($roleOption) ? $roleOption : [$roleOption];
+            }
+            $attributes = $this->getAccessControlAttributes($route);
+
+            $tableData = [
+                ['Route Name', $name],
+                ['Path', $route->getPath()],
+                ['Method(s)', $this->formatMethods($route)],
+                ['Scheme(s)', !empty($route->getSchemes()) ? implode('|', $route->getSchemes()) : 'ANY'],
+                ['Host', $route->getHost() ?: 'ANY'],
+                ['Exposed to JavaScript', $isExposed ? 'Yes' : 'No'],
+                ['Route Option Role(s)', !empty($optionRoles) ? implode(', ', $optionRoles) : 'None'],
+                ['access_control Rule(s)', !empty($attributes) ? implode(', ', $attributes) : 'None'],
+                ['Accessible Roles in JS', $isExposed ? $this->determineAllowedRolesDescription($route) : 'Not exposed to JavaScript'],
+            ];
+
+            if (!empty($filteredRoles)) {
+                $rolesLabel = implode(', ', $filteredRoles);
+                $isAccessible = $isExposed && $this->isRouteAccessibleByRoles($route, $filteredRoles);
+                $tableData[] = [
+                    sprintf('Accessible for Role(s) [%s]', $rolesLabel),
+                    $isAccessible ? 'Yes' : 'No',
+                ];
+            }
+
+            $io->section(sprintf('Route Details: %s', $name));
+            $io->table(['Property', 'Value'], $tableData);
+        }
+
+        $io->success(sprintf('Found %d matching route(s) for "%s".', count($matchingRoutes), $query));
+
+        return Command::SUCCESS;
+    }
+
+    /**
+     * Finds routes matching the given query by name or path.
+     *
+     * @param array<string, Route> $allRoutes
+     *
+     * @return array<string, Route>
+     */
+    private function findMatchingRoutes(array $allRoutes, string $query): array
+    {
+        $query = trim($query);
+
+        // 1. Direct exact name match
+        if (isset($allRoutes[$query])) {
+            return [$query => $allRoutes[$query]];
+        }
+
+        $normalizedQueryPath = '/'.ltrim($query, '/');
+        $matches = [];
+
+        // 2. Exact path match or case-insensitive name match
+        foreach ($allRoutes as $name => $route) {
+            if ($name === $query || 0 === strcasecmp($name, $query)) {
+                $matches[$name] = $route;
+                continue;
+            }
+
+            $routePath = $route->getPath();
+            if ($routePath === $query || $routePath === $normalizedQueryPath) {
+                $matches[$name] = $route;
+            }
+        }
+
+        return $matches;
     }
 
     /**
