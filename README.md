@@ -1,11 +1,11 @@
 # FOSJsRoutingSecurityBundle
 
-[![Latest Version](https://img.shields.io/badge/version1.0.0-alpha3-blue.svg)](https://packagist.org/packages/vagabit/fos-js-routing-security-bundle)
+[![Latest Version](https://img.shields.io/badge/version1.0.0-alpha4-blue.svg)](https://packagist.org/packages/vagabit/fos-js-routing-security-bundle)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Extends [FOSJsRoutingBundle](https://github.com/FriendsOfSymfony/FOSJsRoutingBundle) to dynamically filter and serve exposed routes based on user roles and permissions in Symfony 6.4 / 7.x / 8.x.
 
-Current version: **`1.0.0-alpha3`**
+Current version: **`1.0.0-alpha4`**
 
 
 The fundamental purpose of FOSJsRoutingBundle is to maximize developer productivity by 
@@ -40,7 +40,7 @@ This extension optimizes the system by aligning route delivery with actual user 
 ### 1. Install via Composer
 
 ```bash
-composer require vagabit/fos-js-routing-security-bundle:^1.0.0-alpha3
+composer require vagabit/fos-js-routing-security-bundle:^1.0.0-alpha4
 ```
 
 ### 2. Enable the Bundle
