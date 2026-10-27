@@ -11,6 +11,7 @@ class JsRoutingControllerWebTest extends WebTestCase
 {
     protected static function getKernelClass(): string
     {
+        parent::getKernelClass();
         return Kernel::class;
     }
 

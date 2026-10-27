@@ -143,24 +143,41 @@ npm install fos-routing --save
 yarn add fos-routing
 ```
 
-Fetch the dynamic `/vagabit-secure-js-routes.json` endpoint upon application bootstrap to initialize the router with user-specific routes:
+##### Initializing Routes Before Application Bootstrap
+
+Because route generation (`Routing.generate()`) is synchronous, route definitions must be loaded and registered into the router instance **before** the frontend application initializes or mounts its root view/components. If components or lifecycle hooks attempt to generate URLs before route data is registered, route resolution will fail.
+
+A standard pattern is to wrap application initialization in an asynchronous bootstrap routine that fetches `/vagabit-secure-js-routes.json`, registers the payload via `Routing.setData()`, and then mounts/boots the application:
 
 ```javascript
 import Routing from 'fos-routing';
 
-async function initRouting() {
+async function bootstrapApp() {
+    // 1. Fetch role-filtered route definitions
     const response = await fetch('/vagabit-secure-js-routes.json', {
         headers: { 'Accept': 'application/json' }
     });
     const routesData = await response.json();
-    Routing.setRoutingData(routesData);
+
+    // 2. Register route data in the router
+    Routing.setData(routesData);
+
+    // 3. Initialize / mount your application once routes are ready
+    // initApp();
 }
 
-// Generate routes seamlessly
-initRouting().then(() => {
-    const url = Routing.generate('admin_dashboard');
-    console.log(url);
+bootstrapApp().catch((error) => {
+    console.error('Failed to initialize routes and bootstrap application:', error);
 });
+```
+
+Once initialized during bootstrap, `Routing` can be imported and called synchronously across any component, utility, or module:
+
+```javascript
+// In any application module or component:
+import Routing from 'fos-routing';
+
+const url = Routing.generate('admin_dashboard');
 ```
 
 #### Option B: Server-Rendered Twig Layouts
