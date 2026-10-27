@@ -14,15 +14,17 @@ It brings Symfony’s route generation mechanism (`Routing.generate('route_name'
 directly to frontend applications.
 
 Standard FOSJsRouting operates on a public, all-or-nothing model. Any route marked `expose: 
-true` is exposed to every visitor. This presents a clear security and efficiency drawback: 
+true` is exposed to every visitor. While this is not a security issue "per se", it presents a clear security and efficiency drawback: 
 internal and administrative endpoints (path structures, parameter schemas, and route names) are leaked 
-to unauthenticated users who cannot use them, increasing the attack surface without providing 
-any functional benefit.
+to users who cannot use them, increasing the attack surface without providing any functional benefit.
 
 This extension optimizes the system by aligning route delivery with actual user utility and access permissions:
 1. Automated Route Filtering: for every exposed route, it evaluates Symfony’s security.yaml access_control rules and custom route-level role / roles options against the current user's security token.
 2. Information Minimization: Users only receive route definitions for endpoints they are actually authorized to access. Anonymous users receive only public routes; administrative routes are only transmitted to users holding ROLE_ADMIN.
 3. Security and Payload Reduction: Removing inaccessible routes shrinks payload size across the wire and prevents reconnaissance on sensitive backend structures.
+
+The only drawback of this bundle is that routes can not be dumped altogether in a single static cacheable file bust must be served dynamically, a different caching 
+mechanism is provided to avoid performance overhead.
 
 ## Features
 
