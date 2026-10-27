@@ -13,7 +13,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Vagabit\FOSJsRoutingSecurityBundle\Service\JsRoutesCacheWarmer;
 
 #[AsCommand(
-    name: 'fos:js-routing:warmup',
+    name: 'vagabit:js-routing:warmup',
     description: 'Warms up the role-filtered FOSJsRouting cache for configured or specified role combinations'
 )]
 class WarmupJsRoutesCacheCommand extends Command

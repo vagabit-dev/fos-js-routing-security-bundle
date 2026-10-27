@@ -254,10 +254,10 @@ You can also warm up routes on-demand (e.g. during CI/CD deployment pipelines):
 
 ```bash
 # Warm up all configured role combinations
-php bin/console fos:js-routing:warmup
+php bin/console vagabit:js-routing:warmup
 
 # Warm up specific role combinations on the fly
-php bin/console fos:js-routing:warmup --role=ROLE_ADMIN --role=ROLE_USER
+php bin/console vagabit:js-routing:warmup --role=ROLE_ADMIN --role=ROLE_USER
 ```
 
 #### Selective Cache Invalidation
