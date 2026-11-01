@@ -26,7 +26,11 @@ class WarmupJsRoutesCacheCommandTest extends TestCase
 
         $command = new WarmupJsRoutesCacheCommand($cacheWarmer);
         $application = new Application();
-        $application->add($command);
+        if (method_exists($application, 'addCommand')) {
+            $application->addCommand($command);
+        } else {
+            $application->add($command);
+        }
 
         $commandTester = new CommandTester($command);
         $commandTester->execute([]);

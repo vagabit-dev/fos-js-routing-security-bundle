@@ -1,16 +1,13 @@
 # FOSJsRoutingSecurityBundle
 
-
-[![CI Test Suite](https://github.com/vagabit/fos-js-routing-security-bundle/actions/workflows/tests.yml/badge.svg)](https://github.com/vagabit/fos-js-routing-security-bundle/actions/workflows/tests.yml)
+[![CI Test Suite](https://github.com/vagabit-dev/fos-js-routing-security-bundle/actions/workflows/tests.yml/badge.svg)](https://github.com/vagabit-dev/fos-js-routing-security-bundle/actions/workflows/tests.yml)
 [![Latest Stable Version](https://img.shields.io/packagist/v/vagabit/fos-js-routing-security-bundle.svg?style=flat-square)](https://packagist.org/packages/vagabit/fos-js-routing-security-bundle)
 [![PHP Version](https://img.shields.io/packagist/dependency-v/vagabit/fos-js-routing-security-bundle/php.svg?style=flat-square)](https://packagist.org/packages/vagabit/fos-js-routing-security-bundle)
-[![License](https://img.shields.io/packagist/l/vagabit/fos-js-routing-security-bundle.svg?style=flat-square)](LICENSE)
-
+[![License](https://img.shields.io/github/license/vagabit-dev/fos-js-routing-security-bundle.svg?style=flat-square)](LICENSE)
 
 Extends [FOSJsRoutingBundle](https://github.com/FriendsOfSymfony/FOSJsRoutingBundle) to dynamically filter and serve exposed routes based on user roles and permissions in Symfony 6.4 / 7.x / 8.x.
 
 Current version: **`1.0.0-beta1`**
-
 
 The fundamental purpose of FOSJsRoutingBundle is to maximize developer productivity by 
 eliminating manual URL hardcoding in JavaScript. 
