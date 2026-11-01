@@ -6,7 +6,7 @@
 [![Symfony Version](https://img.shields.io/packagist/dependency-v/vagabit/fos-js-routing-security-bundle/symfony/framework-bundle.svg?style=flat-square&label=symfony&logo=symfony)](https://packagist.org/packages/vagabit/fos-js-routing-security-bundle)
 [![License](https://img.shields.io/github/license/vagabit-dev/fos-js-routing-security-bundle.svg?style=flat-square)](LICENSE)
 
-Extends [FOSJsRoutingBundle](https://github.com/FriendsOfSymfony/FOSJsRoutingBundle) to dynamically filter and serve exposed routes based on user roles and permissions in Symfony 6.4 / 7.x / 8.x.
+Extends [FOSJsRoutingBundle](https://github.com/FriendsOfSymfony/FOSJsRoutingBundle) to dynamically filter and serve exposed routes based on user roles and permissions.
 
 The fundamental purpose of FOSJsRoutingBundle is to maximize developer productivity by 
 eliminating manual URL hardcoding in JavaScript. 
