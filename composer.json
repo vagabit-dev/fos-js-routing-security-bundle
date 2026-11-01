@@ -1,7 +1,6 @@
 {
     "name": "vagabit/fos-js-routing-security-bundle",
     "description": "Role-filtered and security.yaml access-control-aware route exposure for FOSJsRoutingBundle",
-    "version": "1.0.0-alpha7",
     "type": "symfony-bundle",
     "license": "MIT",
     "authors": [
