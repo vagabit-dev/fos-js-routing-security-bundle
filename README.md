@@ -1,7 +1,7 @@
 # FOSJsRoutingSecurityBundle
 
 
-[![CI Test Suite](https://github.com/<owner>/fos-js-routing-security-bundle/actions/workflows/tests.yml/badge.svg)](https://github.com/<owner>/fos-js-routing-security-bundle/actions/workflows/tests.yml)
+[![CI Test Suite](https://github.com/vagabit/fos-js-routing-security-bundle/actions/workflows/tests.yml/badge.svg)](https://github.com/vagabit/fos-js-routing-security-bundle/actions/workflows/tests.yml)
 [![Latest Stable Version](https://img.shields.io/packagist/v/vagabit/fos-js-routing-security-bundle.svg?style=flat-square)](https://packagist.org/packages/vagabit/fos-js-routing-security-bundle)
 [![PHP Version](https://img.shields.io/packagist/dependency-v/vagabit/fos-js-routing-security-bundle/php.svg?style=flat-square)](https://packagist.org/packages/vagabit/fos-js-routing-security-bundle)
 [![License](https://img.shields.io/packagist/l/vagabit/fos-js-routing-security-bundle.svg?style=flat-square)](LICENSE)
