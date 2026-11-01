@@ -5,5 +5,5 @@ services:
         public: true
 
     Vagabit\FOSJsRoutingSecurityBundle\Tests\Fixtures\Controller\:
-        resource: '../tests/Fixtures/Controller/'
+        resource: '../Fixtures/Controller/'
         tags: ['controller.service_arguments']

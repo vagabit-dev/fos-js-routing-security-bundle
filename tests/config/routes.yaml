@@ -1,14 +1,14 @@
 controllers:
     resource:
-        path: ../src/Controller/
+        path: ../../src/Controller/
         namespace: Vagabit\FOSJsRoutingSecurityBundle\Controller
     type: attribute
 
 test_fixtures_controllers:
     resource:
-        path: ../tests/Fixtures/Controller/
+        path: ../Fixtures/Controller/
         namespace: Vagabit\FOSJsRoutingSecurityBundle\Tests\Fixtures\Controller
     type: attribute
 
 fos_js_routing:
-    resource: "@FOSJsRoutingBundle/Resources/config/routing/routing-sf4.xml"
+    resource: "@FOSJsRoutingBundle/Resources/config/routing/routing.php"

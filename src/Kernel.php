@@ -33,6 +33,11 @@ class Kernel extends BaseKernel
         return \dirname(__DIR__);
     }
 
+    private function getConfigDir(): string
+    {
+        return $this->getProjectDir().'/tests/config';
+    }
+
     protected function configureContainer(ContainerConfigurator $container, LoaderInterface $loader, ContainerBuilder $builder): void
     {
         $configDir = $this->getConfigDir();
