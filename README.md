@@ -7,7 +7,7 @@
 
 Extends [FOSJsRoutingBundle](https://github.com/FriendsOfSymfony/FOSJsRoutingBundle) to dynamically filter and serve exposed routes based on user roles and permissions in Symfony 6.4 / 7.x / 8.x.
 
-Current version: **`1.0.0-beta1`**
+Current version: **`1.0.0`**
 
 The fundamental purpose of FOSJsRoutingBundle is to maximize developer productivity by 
 eliminating manual URL hardcoding in JavaScript. 
