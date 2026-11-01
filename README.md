@@ -1,11 +1,15 @@
 # FOSJsRoutingSecurityBundle
 
-[![Latest Version](https://img.shields.io/badge/version1.0.0-blue.svg)](https://packagist.org/packages/vagabit/fos-js-routing-security-bundle)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+[![CI Test Suite](https://github.com/<owner>/fos-js-routing-security-bundle/actions/workflows/tests.yml/badge.svg)](https://github.com/<owner>/fos-js-routing-security-bundle/actions/workflows/tests.yml)
+[![Latest Stable Version](https://img.shields.io/packagist/v/vagabit/fos-js-routing-security-bundle.svg?style=flat-square)](https://packagist.org/packages/vagabit/fos-js-routing-security-bundle)
+[![PHP Version](https://img.shields.io/packagist/dependency-v/vagabit/fos-js-routing-security-bundle/php.svg?style=flat-square)](https://packagist.org/packages/vagabit/fos-js-routing-security-bundle)
+[![License](https://img.shields.io/packagist/l/vagabit/fos-js-routing-security-bundle.svg?style=flat-square)](LICENSE)
+
 
 Extends [FOSJsRoutingBundle](https://github.com/FriendsOfSymfony/FOSJsRoutingBundle) to dynamically filter and serve exposed routes based on user roles and permissions in Symfony 6.4 / 7.x / 8.x.
 
-Current version: **`1.0.0`**
+Current version: **`1.0.0-beta1`**
 
 
 The fundamental purpose of FOSJsRoutingBundle is to maximize developer productivity by 
@@ -42,7 +46,7 @@ mechanism is provided to avoid performance overhead.
 ### 1. Install via Composer
 
 ```bash
-composer require vagabit/fos-js-routing-security-bundle:^1.0.0
+composer require vagabit/fos-js-routing-security-bundle:^1.0.0-beta1
 ```
 
 ### 2. Enable the Bundle
@@ -395,63 +399,9 @@ php bin/console cache:pool:invalidate-tags fos_js_routing_security
 
 ---
 
-## Running Tests
+## Contributing
 
-Run the test suite using Docker Compose without needing a local PHP environment:
-
-```bash
-# Run tests
-docker compose run --rm test
-
-# Or build and run in one step
-docker compose up --build
-```
-
-Or directly with standalone Docker:
-
-```bash
-# Build the test image
-docker build -t fos-js-routing-security-bundle-test .
-
-# Run the test suite
-docker run --rm -v "$(pwd):/app" -w /app fos-js-routing-security-bundle-test vendor/bin/phpunit
-```
-
----
-
-## Code Quality & Style
-
-This project follows Symfony coding standards via `.editorconfig` and `PHP CS Fixer`.
-
-### Using Docker Compose
-
-```bash
-# Check code style
-docker compose run --rm --entrypoint composer test cs-check
-
-# Automatically fix code style
-docker compose run --rm --entrypoint composer test cs-fix
-```
-
-Or directly via PHP CS Fixer binary:
-
-```bash
-# Check code style with diff
-docker compose run --rm --entrypoint vendor/bin/php-cs-fixer test fix --dry-run --diff
-
-# Automatically fix code style
-docker compose run --rm --entrypoint vendor/bin/php-cs-fixer test fix
-```
-
-### Using Standalone Docker
-
-```bash
-# Check code style
-docker run --rm -v "$(pwd):/app" -w /app fos-js-routing-security-bundle-test vendor/bin/php-cs-fixer fix --dry-run --diff
-
-# Automatically fix code style
-docker run --rm -v "$(pwd):/app" -w /app fos-js-routing-security-bundle-test vendor/bin/php-cs-fixer fix
-```
+Please see if you want to contribute to the library [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
