@@ -8,3 +8,4 @@
 *.iml
 .vscode/
 .DS_Store
+composer.lock
