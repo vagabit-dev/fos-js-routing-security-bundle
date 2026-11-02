@@ -4,6 +4,7 @@
 [![Latest Stable Version](https://img.shields.io/packagist/v/vagabit/fos-js-routing-security-bundle.svg?style=flat-square)](https://packagist.org/packages/vagabit/fos-js-routing-security-bundle)
 [![PHP Version](https://img.shields.io/packagist/dependency-v/vagabit/fos-js-routing-security-bundle/php.svg?style=flat-square)](https://packagist.org/packages/vagabit/fos-js-routing-security-bundle)
 [![Symfony Version](https://img.shields.io/packagist/dependency-v/vagabit/fos-js-routing-security-bundle/symfony/framework-bundle.svg?style=flat-square&label=symfony&logo=symfony)](https://packagist.org/packages/vagabit/fos-js-routing-security-bundle)
+[![CodeQL Analysis](https://github.com/vagabit-dev/fos-js-routing-security-bundle/actions/workflows/codeql.yml/badge.svg)](https://github.com/vagabit-dev/fos-js-routing-security-bundle/actions/workflows/codeql.yml)
 [![License](https://img.shields.io/github/license/vagabit-dev/fos-js-routing-security-bundle.svg?style=flat-square)](LICENSE)
 
 Extends [FOSJsRoutingBundle](https://github.com/FriendsOfSymfony/FOSJsRoutingBundle) to dynamically filter and serve exposed routes based on user roles and permissions.
